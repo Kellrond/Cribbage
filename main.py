@@ -12,8 +12,7 @@ dealer = bool
 canGo = bool
 playCount = 0
 roundCounter = 1
-WIN = 5
-
+WIN = 121
 
 
 # # Card enum for cards
@@ -44,6 +43,7 @@ class Suit(Enum):
 
 # # Class to hold card info
 class PlayingCard:
+
     def __init__(self, card_name, card_numb, card_suit, card_value,discard=False):
         self.name = card_name
         self.numb = card_numb
@@ -52,11 +52,13 @@ class PlayingCard:
         self.discard = discard
 
     def textPlay(self):
+
         output = self.name.name.capitalize() + " " + self.suit.name.capitalize()
         return output
 
 
 def createDeck():
+
     for suit in Suit:
         for card in Card:
             if card.value > 10:
@@ -69,6 +71,7 @@ def createDeck():
 
 # # Draw single card from deck
 def cutDeck(deck):
+
     # input("Hit enter to cut the deck")
     randCard = randint(0, len(deck)-1)
     return deck.pop(randCard)
@@ -80,10 +83,6 @@ def cutToStart():
     while not winnerFound:
 
         createDeck()
-        # input("Cut and see who goes first")
-        # cutDepth = randint(10, 40)
-        # p1cut = fullDeck[cutDepth-1]
-        # p2cut = cutDeck(fullDeck[cutDepth + 1:])
 
         p1cut = fullDeck[randint(0, 26)]
         p2cut = fullDeck[randint(27, 52)]
@@ -112,6 +111,7 @@ def cutToStart():
 
 
 def deal():
+
     if dealer:
         for i in range(0, 6):
             player1cards.append(playDeck.pop())
@@ -123,26 +123,15 @@ def deal():
 
 
 def p1discard():
-    # finished = False
-    # while not finished:
-    #
-    #     if len(player1cards) == 4:
-    #         finished = True
-    #     else:
-    #         for index, cards in enumerate(player1cards):
-    #             print(index, cards.textPlay())
-    #         discard = input("Select first cards to discard")
-    #         if int(discard) >= 0 or int(discard) <= 5:
-    #             crib.append(player1cards.pop(int(discard)))
-    #         else:
-    #             print("Please make a valid selection")
-    for i in range(0,2):
+
+    for i in range(0, 2):
         randCard = randint(0, len(player1cards) - 1)
         crib.append(player1cards.pop(randCard))
 
 
 def p2discard():
-    for i in range(0,2):
+
+    for i in range(0, 2):
         randCard = randint(0, len(player2cards) - 1)
         crib.append(player2cards.pop(randCard))
 
@@ -175,10 +164,10 @@ def suggestedCard(cardsinhand, count, thePlay):
     else:
         for index, c in enumerate(cardsinhand):
             samplePlay = thePlay.copy()
-
-            if playPairs(samplePlay.append(c)) > 0:
-                suggestion = cardsinhand.pop(index)
-            elif c.value + count == 15:
+            #
+            # if playPairs(samplePlay.append(c)) > 0:
+            #     suggestion = cardsinhand.pop(index)
+            if c.value + count == 15:
                 suggestion = cardsinhand.pop(index)
             elif c.value + count == 31:
                 suggestion = cardsinhand.pop(index)
@@ -235,20 +224,34 @@ def checkPlayForPoints(playCount, thePlay):
 def playPairs(play):
     pairsList = thePlay.copy()
     pairsList.reverse()
+    pairsValueList = []
+    for c in pairsList:
+        pairsValueList.append(c.value)
+
+
+
     score = 0
 
+    print("checking pairs - ",end="")
     # TODO refine this code
-    if Counter(pairsList[0:1]).values() == 2:
-        if Counter(pairsList[0:2]).values() == 3:
-            if Counter(pairsList[0:3]).values() == 4:
-                print("Four of a kind @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+
+    onePair = len(set(pairsValueList[0:2]))
+    twoPair = len(set(pairsValueList[0:3]))
+    thrPair = len(set(pairsValueList[0:4]))
+
+    if onePair == 1:
+        if twoPair == 1 and len(pairsValueList) > 2:
+            if thrPair == 1 and len(pairsValueList) > 3:
+                print("Four of a kind")
                 score = 12
             else:
-                print("Three of a kind @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+                print("Three of a kind")
                 score = 6
         else:
-            print("Two of a kind @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@")
+            print("Two of a kind")
             score = 2
+    else:
+        print("None found")
     return score
 
 
