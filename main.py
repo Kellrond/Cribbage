@@ -4,13 +4,14 @@ from random import *
 
 fullDeck = []
 playDeck = []
-player1cards = []
-player2cards = []
-crib = []
-thePlay = []
+p1score = 0
+p2score = 0
 dealer = bool
 canGo = bool
 playCount = 0
+roundCounter = 1
+WIN = 12
+
 
 # # Card enum for cards
 class Card(IntEnum):
@@ -149,16 +150,14 @@ def canGo(hand, count):
     for c in hand:
         if c.value + count <= 31:
             cango = True
-        else:
-            cango = False
 
     return cango
 
 
-def playableCards(cards, count):
+def playableCards(cardsinhand, count):
 
     playable = []
-    for index, c in enumerate(cards):
+    for index, c in enumerate(cardsinhand):
         if c.value + count <= 31:
             playable.append(index)
 
@@ -171,10 +170,11 @@ def p1play(playCount):
     randCard = playable[randint(0, len(playable) - 1)]
     playCard = p1playhand.pop(randCard)
     playCount += playCard.value
+    thePlay.append(playCard)
     print("P1:",playCard.textPlay(),"Count:",playCount)
 
 
-    return playCard
+    return playCount
 
 
 
@@ -184,13 +184,14 @@ def p2play(playCount):
     randCard = playable[randint(0, len(playable) - 1)]
     playCard = p2playhand.pop(randCard)
     playCount += playCard.value
+    thePlay.append(playCard)
     print("P2:", playCard.textPlay(), "Count:", playCount)
 
-    return playCard
+    return playCount
 
 
 # # Game starts
-print("Game begins \n".upper())
+print("───Game begins".upper())
 createDeck()
 playDeck = list(fullDeck)
 
@@ -199,67 +200,108 @@ dealer = cutToStart()
 
 print()
 
-deal()
-
-p2discard()
-p1discard()
-
-
-
-
-print("Player 1")
-for cards in player1cards: print(cards.textPlay())
-print()
-print("Player 2")
-for cards in player2cards: print(cards.textPlay())
-print()
-print("Crib")
-for cards in crib: print(cards.textPlay())
-
-print()
-
 
 
 # # Prep the play phase
-print("Play Phase")
-p1playhand = player1cards
-p2playhand = player2cards
+print("───Play Phase")
 
-if dealer:
-    p1turn = False
-else:
-    p1turn = True
+roundPhaseOver = False
+while not roundPhaseOver:
+    print(roundCounter,"────¼─────")
+    createDeck()
+    playDeck = list(fullDeck)
 
-playPhaseOver = False
-while not playPhaseOver:
+    player1cards = []
+    player2cards = []
+    crib = []
+    thePlay = []
 
-    if len(p1playhand) == 0 and len(p2playhand) == 0:
-        playPhaseOver = True
+    deal()
 
-    playCount = 0
+    p2discard()
+    p1discard()
 
-    p1go = False
-    p2go = False
-    go = False
-    while not go:
+    p1playhand = player1cards.copy()
+    p2playhand = player2cards.copy()
 
-        if p1go is True and p2go is True:
-            go = True
-            print("Go!")
-        elif p1turn and canGo(p1playhand, playCount):
-            thePlay.append(p1play(playCount))
-            p1turn = False
-        elif p1turn:
-            p1go = True
-            p1Turn = False
-        elif not p1turn and canGo(p2playhand, playCount):
-            thePlay.append(p2play(playCount))
-            p1Turn = True
-        elif not p1turn:
-            p2go = True
-            p1Turn = True
+    if dealer:
+        p1turn = False
+    else:
+        p1turn = True
 
-print("Play phase over")
+    if p1turn:
+        print("Player 1 starts")
+    else:
+        print("Player 2 starts")
+
+    outOfCards = False
+    while not outOfCards:
+        if len(p1playhand) == 0 and len(p2playhand) == 0:
+            outOfCards = True
+        else:
+            playCount = 0
+            p1go = False
+            p2go = False
+
+            go = False
+            while not go:
+                if p1go is True and p2go is True:
+                    go = True
+                    print("Go!", playCount)
+
+                    if p1turn:
+                        p2score += 1
+                        print("Player 2 Scores - Total -", p2score)
+                    else:
+                        p1score += 1
+                        print("Player 1 Scores - Total -", p1score)
+
+                    for c in thePlay:
+                        print(c.textPlay(), end="\t")
+
+                    print()
+                    thePlay = []
+
+                elif p1turn and canGo(p1playhand, playCount):
+                    playCount = p1play(playCount)
+                    p1turn = False
+                elif p1turn:
+                    p1go = True
+                    p1turn = False
+                elif not p1turn and canGo(p2playhand, playCount):
+                    playCount = p2play(playCount)
+                    p1turn = True
+                elif not p1turn:
+                    p1turn = True
+                    p2go = True
+
+    print()
+    print("───Play phase over")
+
+    print("Player 1")
+    for cards in player1cards: print(cards.textPlay())
+    print()
+    print("Player 2")
+    for cards in player2cards: print(cards.textPlay())
+    print()
+    print("Crib")
+    for cards in crib: print(cards.textPlay())
+
+    print()
+    print("Player 1 Score -", p1score)
+    print("Player 2 score -", p2score)
+
+    if dealer:
+        dealer = False
+    else:
+        dealer = True
+
+    if p1score >= WIN or p2score >= WIN:
+        roundPhaseOver = True
+    else:
+        roundPhaseOver = False
+
+
 
 
 
