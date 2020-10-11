@@ -112,6 +112,12 @@ def cutToStart():
 
 def deal():
 
+
+
+
+
+
+
     if dealer:
         for i in range(0, 6):
             player1cards.append(playDeck.pop())
@@ -156,10 +162,11 @@ def playableCards(cardsinhand, count):
     return playable
 
 
-def suggestedCard(cardsinhand, count, thePlay):
+def suggestedCard(cardsinhand, count):
     suggestion = None
 
     if len(thePlay) == 0:
+        # # Todo add card suggestion
         suggestion = None
     else:
         for index, c in enumerate(cardsinhand):
@@ -174,7 +181,7 @@ def suggestedCard(cardsinhand, count, thePlay):
 
 def p1play(playCount, thePlay):
     playable = playableCards(p1playhand, playCount)
-    suggestion = suggestedCard(p1playhand, playCount, thePlay)
+    suggestion = suggestedCard(p1playhand, playCount)
     if suggestion is not None:
         playCard = suggestion
     else:
@@ -190,7 +197,7 @@ def p1play(playCount, thePlay):
 
 def p2play(playCount, thePlay):
     playable = playableCards(p2playhand, playCount)
-    suggestion = suggestedCard(p2playhand, playCount, thePlay)
+    suggestion = suggestedCard(p2playhand, playCount)
     if suggestion is not None:
         playCard = suggestion
     else:
@@ -230,7 +237,7 @@ def playPairs():
     pairsList.reverse()
     pairsValueList = []
     for c in pairsList:
-        pairsValueList.append(c.value)
+        pairsValueList.append(c.numb)
 
     score = 0
 
@@ -268,18 +275,24 @@ print()
 # # Prep the play phase
 print("───Play Phase")
 
-for i in range(0, 100):
+for i in range(0, 2):
     roundPhaseOver = False
     while not roundPhaseOver:
-        print(roundCounter, "────¼─────")
-        createDeck()
-        playDeck = list(fullDeck)
+        print( "────",roundCounter, "Begins ─────")
 
         player1cards = []
         player2cards = []
         crib = []
         thePlay = []
+        fullDeck = []
+        playDeck = []
 
+
+        createDeck()
+        playDeck = list(fullDeck)
+
+        for c in playDeck:
+            print(c.textPlay())
         deal()
 
         p2discard()
@@ -287,6 +300,15 @@ for i in range(0, 100):
 
         p1playhand = player1cards.copy()
         p2playhand = player2cards.copy()
+
+        print("Player 1")
+        for cards in player1cards: print(cards.textPlay())
+        print()
+        print("Player 2")
+        for cards in player2cards: print(cards.textPlay())
+        print()
+        print("Crib")
+        for cards in crib: print(cards.textPlay())
 
         if dealer:
             p1turn = False
@@ -317,8 +339,6 @@ for i in range(0, 100):
                         else:
                             p1score += 1
                             print("GO!! Player 1 Scores ")
-                        for c in thePlay:
-                            print(c.textPlay(), end="\t")
                         print()
                         thePlay = []
 
@@ -343,19 +363,19 @@ for i in range(0, 100):
         print()
         print("───Play phase over")
 
-        # print("Player 1")
-        # for cards in player1cards: print(cards.textPlay())
-        # print()
-        # print("Player 2")
-        # for cards in player2cards: print(cards.textPlay())
-        # print()
-        # print("Crib")
-        # for cards in crib: print(cards.textPlay())
+        print("Player 1")
+        for cards in player1cards: print(cards.textPlay())
+        print()
+        print("Player 2")
+        for cards in player2cards: print(cards.textPlay())
+        print()
+        print("Crib")
+        for cards in crib: print(cards.textPlay())
 
         print()
         print("Player 1 Score -", p1score)
         print("Player 2 score -", p2score)
-        print("─── Round",roundCounter)
+        print("─── Round",roundCounter," Over ───")
 
         if dealer:
             dealer = False
