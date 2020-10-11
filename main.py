@@ -163,11 +163,9 @@ def suggestedCard(cardsinhand, count, thePlay):
         suggestion = None
     else:
         for index, c in enumerate(cardsinhand):
-            samplePlay = thePlay.copy()
-            #
-            # if playPairs(samplePlay.append(c)) > 0:
-            #     suggestion = cardsinhand.pop(index)
-            if c.value + count == 15:
+            if testPairs(c):
+                suggestion = cardsinhand.pop(index)
+            elif c.value + count == 15:
                 suggestion = cardsinhand.pop(index)
             elif c.value + count == 31:
                 suggestion = cardsinhand.pop(index)
@@ -206,7 +204,7 @@ def p2play(playCount, thePlay):
     return playCount
 
 
-def checkPlayForPoints(playCount, thePlay):
+def checkPlayForPoints(playCount):
     count = playCount
     play = thePlay
     score = 0
@@ -216,23 +214,26 @@ def checkPlayForPoints(playCount, thePlay):
     elif playCount == 31:
         score += 1
         print("31 for two")
-    score += playPairs(thePlay)
+    score += playPairs()
 
     return score
 
+def testPairs(input):
+    lastPlayed = thePlay[len(thePlay)-1]
+    if lastPlayed.numb == input.numb:
+        return True
+    else:
+        return False
 
-def playPairs(play):
+def playPairs():
     pairsList = thePlay.copy()
     pairsList.reverse()
     pairsValueList = []
     for c in pairsList:
         pairsValueList.append(c.value)
 
-
-
     score = 0
 
-    print("checking pairs - ",end="")
     # TODO refine this code
 
     onePair = len(set(pairsValueList[0:2]))
@@ -242,22 +243,17 @@ def playPairs(play):
     if onePair == 1:
         if twoPair == 1 and len(pairsValueList) > 2:
             if thrPair == 1 and len(pairsValueList) > 3:
-                print("Four of a kind")
+                print(" Four of a kind")
                 score = 12
             else:
-                print("Three of a kind")
+                print(" Three of a kind")
                 score = 6
         else:
-            print("Two of a kind")
+            print(" Two of a kind")
             score = 2
     else:
-        print("None found")
+        pass
     return score
-
-
-
-
-
 
 
 # # Game starts
@@ -265,20 +261,17 @@ print("───Game begins".upper())
 createDeck()
 playDeck = list(fullDeck)
 
-
 dealer = cutToStart()
 
 print()
 
-
-
 # # Prep the play phase
 print("───Play Phase")
 
-for i in range(0, 1):
+for i in range(0, 100):
     roundPhaseOver = False
     while not roundPhaseOver:
-        print(roundCounter,"────¼─────")
+        print(roundCounter, "────¼─────")
         createDeck()
         playDeck = list(fullDeck)
 
@@ -318,13 +311,12 @@ for i in range(0, 1):
                 while not go:
                     if p1go is True and p2go is True:
                         go = True
-                        print("Go!", playCount)
                         if p1turn:
                             p2score += 1
-                            print("Player 2 Scores - Total -", p2score)
+                            print("GO!! Player 2 Scores ")
                         else:
                             p1score += 1
-                            print("Player 1 Scores - Total -", p1score)
+                            print("GO!! Player 1 Scores ")
                         for c in thePlay:
                             print(c.textPlay(), end="\t")
                         print()
@@ -333,7 +325,7 @@ for i in range(0, 1):
                     elif p1turn and canGo(p1playhand, playCount):
                         playCount = p1play(playCount, thePlay)
                         if len(thePlay) > 1:
-                            p1score += checkPlayForPoints(playCount, thePlay)
+                            p1score += checkPlayForPoints(playCount)
                         p1turn = False
                     elif p1turn:
                         p1go = True
@@ -342,7 +334,7 @@ for i in range(0, 1):
                     elif not p1turn and canGo(p2playhand, playCount):
                         playCount = p2play(playCount, thePlay)
                         if len(thePlay) > 1:
-                            p2score += checkPlayForPoints(playCount, thePlay)
+                            p2score += checkPlayForPoints(playCount)
                         p1turn = True
                     elif not p1turn:
                         p1turn = True
@@ -351,14 +343,14 @@ for i in range(0, 1):
         print()
         print("───Play phase over")
 
-        print("Player 1")
-        for cards in player1cards: print(cards.textPlay())
-        print()
-        print("Player 2")
-        for cards in player2cards: print(cards.textPlay())
-        print()
-        print("Crib")
-        for cards in crib: print(cards.textPlay())
+        # print("Player 1")
+        # for cards in player1cards: print(cards.textPlay())
+        # print()
+        # print("Player 2")
+        # for cards in player2cards: print(cards.textPlay())
+        # print()
+        # print("Crib")
+        # for cards in crib: print(cards.textPlay())
 
         print()
         print("Player 1 Score -", p1score)
