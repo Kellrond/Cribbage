@@ -133,17 +133,39 @@ def deal():
 
 def p1discard():
 
-    suggestedDiscard(player1cards)
-    for i in range(0, 2):
-        randCard = randint(0, len(player1cards) - 1)
-        crib.append(player1cards.pop(randCard))
+    suggestedHand = suggestedDiscard(player1cards)[1]
 
+    adj = 0
+    popList = player1cards.copy()
+    for index, c in enumerate(popList):
+        if c in suggestedHand:
+            print("K", index, c.textPlay())
+            pass
+        else:
+            print("D", index, c.textPlay())
+            crib.append(player1cards.pop(index - adj))
+            adj += 1
 
 def p2discard():
 
-    for i in range(0, 2):
-        randCard = randint(0, len(player2cards) - 1)
-        crib.append(player2cards.pop(randCard))
+    # # Random discard for testing purposes
+    # for i in range(0, 2):
+    #     randCard = randint(0, len(player2cards) - 1)
+    #     crib.append(player2cards.pop(randCard))
+
+
+    suggestedHand = suggestedDiscard(player2cards)[1]
+
+    adj = 0
+    popList = player2cards.copy()
+    for index, c in enumerate(popList):
+        if c in suggestedHand:
+            print("K", index, c.textPlay())
+            pass
+        else:
+            print("D", index, c.textPlay())
+            crib.append(player2cards.pop(index - adj))
+            adj += 1
 
 
 def canGo(hand):
@@ -222,6 +244,7 @@ def testRuns(testCard):
 
 def suggestedDiscard(hand):
     possibleHands = []
+    evalHands = []
 
     for i in range(0, 6):
         tempHand = hand.copy()
@@ -232,8 +255,10 @@ def suggestedDiscard(hand):
             if j >= i:
                 possibleHands.append(tempHand2)
 
+
     for pos in possibleHands:
         presortedPos = []
+
         for c in pos:
             presortedPos.append(c.numb)
 
@@ -287,12 +312,13 @@ def suggestedDiscard(hand):
                     if sum(tempHand2) == 15:
                         score += 2
 
-        print(score, "  ", end="")
-        for k in pos:
-            print(k.textPlay(), end=" ")
-        print()
+        evalHands.append((score,pos))
+
+    evalHands.sort(key=lambda x: x[0], reverse=True)
 
 
+
+    return evalHands[0]
 
 
 # ##
@@ -534,11 +560,12 @@ def countFourCardRun(sortedHand):
 def countThreeCardRun(sortedHand):
 
     score = 0
+    length = len(sortedHand)
 
     for i in range(0, 5):
         tempHand = sortedHand.copy()
         tempHand.pop(i)
-        for j in range(0,4):
+        for j in range(0, 4):
             tempHand2 = tempHand.copy()
             tempHand2.pop(j)
             if j >= i:
@@ -655,6 +682,15 @@ for i in range(0, 100):
         p2discard()
         p1discard()
 
+
+
+
+        for i in crib:
+            print(i.textPlay())
+
+
+
+
         p1playhand = player1cards.copy()
         p2playhand = player2cards.copy()
 
@@ -727,7 +763,7 @@ for i in range(0, 100):
         # ##
         # # Count begins
         # ##
-
+        print()
         print("─── Player 1 Hand")
         p1score += countHand(player1cards)
         print("─── Player 2 Hand")
@@ -737,7 +773,7 @@ for i in range(0, 100):
             p1score += countHand(crib, isCrib=True)
         else:
             p2score += countHand(crib, isCrib=True)
-
+        print()
         print("────────────────────── HANDS ─────")
 
         print("Cut is a ", cut.textPlay())
@@ -764,7 +800,7 @@ for i in range(0, 100):
 
             # # Test function
             with open("Roundtests.txt", "a") as fp:
-                fp.write(str(roundCounter) + ", ")
+                fp.write(str(roundCounter) + ", " + str(p1score) + ", " + str(p2score) + "\n")
             AVG_TEST.append(roundCounter)
 
             roundCounter = 0
@@ -777,12 +813,14 @@ for i in range(0, 100):
 
 
 
+
 # # Test Functions
 END = time.time()
 DURATION = END - START
 
 print("Average Rounds", mean(AVG_TEST))
 print("Duration", DURATION)
+
 
 
 
