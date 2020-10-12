@@ -51,7 +51,7 @@ class PlayingCard:
 
     def textPlay(self):
 
-        output = self.name.name.capitalize() + " " + self.suit.name.capitalize()
+        output = self.name.name.capitalize() + " " + self.suit.name.capitalize() + " " + str(self.numb)
         return output
 
 # ##
@@ -341,15 +341,48 @@ def playRuns():
 # ##
 
 
-def countHand(hand):
+def countHand(inHand):
     score = 0
+    hand = inHand.copy()
 
     flush = fourCardFlush(hand)
     if flush != 0:
         if hand[0].suit == cut.suit:
             flush += 1
+            print("5 Card flush")
     score += flush
 
+    hand.append(cut)
+
+    sortedHand = []
+    for c in hand:
+        sortedHand.append(c.numb)
+    sortedHand = sorted(sortedHand)
+
+    runs = fiveCardRun(sortedHand)
+    if runs != 0:
+        score += runs
+        print("FIVE CARD RUN")
+    else:
+        runs = fourCardRun(sortedHand)
+        if runs != 0:
+            score += runs
+            if score == 4:
+                print("FOUR CARD RUN")
+            elif score == 8:
+                print("DOUBLE FOUR CARD RUN")
+        else:
+            runs = threeCardRun(sortedHand)
+            if runs != 0:
+                score += runs
+                if score == 3:
+                    print("THREE CARD RUN")
+                elif score == 6:
+                    print("DOUBLE THREE CARD RUN")
+                elif score == 9:
+                    print("TRIPLE THREE CARD RUN")
+                elif score == 12:
+                    print("QUADRUPLE THREE CARD RUN")
     return score
 
 
@@ -364,6 +397,48 @@ def fourCardFlush(hand):
     else:
         return 0
 
+
+def fiveCardRun(sortedHand):
+
+    rangeList = list(range(min(sortedHand),max(sortedHand)+1))
+    if sortedHand == rangeList:
+        return 5
+    else:
+        return 0
+
+
+def fourCardRun(sortedHand):
+
+    score = 0
+
+    for i in range(0,len(sortedHand)):
+        tempHand = sortedHand.copy()
+        tempHand.pop(i)
+
+        rangeList = list(range(min(tempHand), max(tempHand)+1))
+        if tempHand == rangeList:
+            score += 4
+        else:
+            pass
+
+    return score
+
+
+def threeCardRun(sortedHand):
+
+    score = 0
+
+    for i in range(0, 5):
+        tempHand = sortedHand.copy()
+        tempHand.pop(i)
+        for j in range(0,4):
+            tempHand2 = tempHand.copy()
+            tempHand2.pop(j)
+            if j >= i:
+                rangeList = list(range(min(tempHand2), max(tempHand2)+1))
+                if tempHand2 == rangeList:
+                    score += 3
+    return score
 
 
 
@@ -478,21 +553,23 @@ for i in range(0, 100):
         # ##
         # # Count begins
         # ##
-
+        print("─── Player 1 Hand")
         p1score += countHand(player1cards)
+        print("─── Player 2 Hand")
         p2score += countHand(player2cards)
 
 
         print("────────────────────── HANDS ─────")
 
+        print("Cut is a ", cut.textPlay())
         print("Player 1")
         for cards in player1cards: print(cards.textPlay())
         print()
-        # print("Player 2")
-        # for cards in player2cards: print(cards.textPlay())
-        # print()
-        # print("Crib")
-        # for cards in crib: print(cards.textPlay())
+        print("Player 2")
+        for cards in player2cards: print(cards.textPlay())
+        print()
+        print("Crib")
+        for cards in crib: print(cards.textPlay())
 
         # #
         # # End round and start loop over
@@ -521,24 +598,12 @@ for i in range(0, 100):
 
 
 
-
-
-
 # # Test Functions
 END = time.time()
 DURATION = END - START
 
 print("Average Rounds", mean(AVG_TEST))
 print("Duration", DURATION)
-
-
-
-
-
-
-
-
-
 
 
 
