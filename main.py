@@ -342,10 +342,11 @@ def playRuns():
 
 
 def countHand(inHand):
+
     score = 0
     hand = inHand.copy()
 
-    flush = fourCardFlush(hand)
+    flush = countFourCardFlush(hand)
     if flush != 0:
         if hand[0].suit == cut.suit:
             flush += 1
@@ -359,12 +360,12 @@ def countHand(inHand):
         sortedHand.append(c.numb)
     sortedHand = sorted(sortedHand)
 
-    runs = fiveCardRun(sortedHand)
+    runs = countFiveCardRun(sortedHand)
     if runs != 0:
         score += runs
         print("FIVE CARD RUN")
     else:
-        runs = fourCardRun(sortedHand)
+        runs = countFourCardRun(sortedHand)
         if runs != 0:
             score += runs
             if score == 4:
@@ -372,7 +373,7 @@ def countHand(inHand):
             elif score == 8:
                 print("DOUBLE FOUR CARD RUN")
         else:
-            runs = threeCardRun(sortedHand)
+            runs = countThreeCardRun(sortedHand)
             if runs != 0:
                 score += runs
                 if score == 3:
@@ -383,10 +384,36 @@ def countHand(inHand):
                     print("TRIPLE THREE CARD RUN")
                 elif score == 12:
                     print("QUADRUPLE THREE CARD RUN")
+
+    pairs = countPairs(hand)
+
+    if pairs == 2:
+        print("ONE PAIR")
+    elif pairs == 4:
+        print("TWO PAIRS")
+    elif pairs == 6:
+        print("THREE PAIRS")
+    elif pairs == 8:
+        print("FOUR PAIRS")
+    elif pairs == 12:
+        print("SIX PAIRS")
+    score += pairs
+
+    fifteens = countFifteens(hand)
+    if fifteens > 0:
+        howMany = int(fifteens / 2)
+        print(howMany, "x FIFTEEN", sep="")
+    score += fifteens
+
+    for c in inHand:
+        if c.numb == 11 and c.suit == cut.suit:
+            score += 1
+            print("NOBS")
+
     return score
 
 
-def fourCardFlush(hand):
+def countFourCardFlush(hand):
 
     flushTest = []
     for c in hand:
@@ -398,7 +425,7 @@ def fourCardFlush(hand):
         return 0
 
 
-def fiveCardRun(sortedHand):
+def countFiveCardRun(sortedHand):
 
     rangeList = list(range(min(sortedHand),max(sortedHand)+1))
     if sortedHand == rangeList:
@@ -407,7 +434,7 @@ def fiveCardRun(sortedHand):
         return 0
 
 
-def fourCardRun(sortedHand):
+def countFourCardRun(sortedHand):
 
     score = 0
 
@@ -424,7 +451,7 @@ def fourCardRun(sortedHand):
     return score
 
 
-def threeCardRun(sortedHand):
+def countThreeCardRun(sortedHand):
 
     score = 0
 
@@ -438,6 +465,73 @@ def threeCardRun(sortedHand):
                 rangeList = list(range(min(tempHand2), max(tempHand2)+1))
                 if tempHand2 == rangeList:
                     score += 3
+    return score
+
+
+def countPairs(hand):
+
+    score = 0
+    tempHand = hand.copy()
+    for i in range(0, 5):
+        card1 = tempHand.pop(0)
+        for j in range(0, len(tempHand)):
+            tempHand2 = tempHand.copy()
+            card2 = tempHand2.pop(j)
+            # print(i,card1.numb, card2.numb)
+            if card1.numb == card2.numb:
+                score += 2
+
+    return score
+
+
+def countFifteens(hand):
+
+    score = 0
+    convertHand = hand.copy()
+    fifteensHand = []
+
+    for c in convertHand:
+        fifteensHand.append(c.value)
+
+    # # 5 Card 15
+    if sum(fifteensHand) == 15:
+        score += 2
+        return score
+
+    # # 4 Card 15
+    for index, c in enumerate(fifteensHand):
+        tempHand = fifteensHand.copy()
+        tempHand.pop(index)
+        if sum(tempHand) == 15:
+
+            score += 2
+
+    # # 3 Card 15
+    for i in range(0, 5):
+        tempHand = fifteensHand.copy()
+        tempHand.pop(i)
+        for j in range(0,4):
+            tempHand2 = tempHand.copy()
+            tempHand2.pop(j)
+            if j >= i:
+                if sum(tempHand2) == 15:
+                    score += 2
+
+    # # 2 Card 15
+    for i in range(0, 5):
+        tempHand = fifteensHand.copy()
+        tempHand.pop(i)
+        for j in range(0,4):
+            tempHand2 = tempHand.copy()
+            tempHand2.pop(j)
+            if j >= i:
+                for k in range(0,3):
+                    tempHand3 = tempHand2.copy()
+                    tempHand3.pop(k)
+                    if k >= j:
+                        if sum(tempHand3) == 15:
+                            score += 2
+
     return score
 
 
@@ -470,7 +564,6 @@ for i in range(0, 100):
         crib = []
         thePlay = []
         fullDeck = []
-        playDeck = []
 
         createDeck()
         playDeck = list(fullDeck)
