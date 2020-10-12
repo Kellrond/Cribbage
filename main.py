@@ -341,7 +341,7 @@ def playRuns():
 # ##
 
 
-def countHand(inHand):
+def countHand(inHand, isCrib=False):
 
     score = 0
     hand = inHand.copy()
@@ -351,7 +351,11 @@ def countHand(inHand):
         if hand[0].suit == cut.suit:
             flush += 1
             print("5 Card flush")
-    score += flush
+    if not isCrib:
+        score += flush
+    else:
+        if flush == 5:
+            score += flush
 
     hand.append(cut)
 
@@ -646,10 +650,14 @@ for i in range(0, 100):
         # ##
         # # Count begins
         # ##
+
         print("─── Player 1 Hand")
         p1score += countHand(player1cards)
         print("─── Player 2 Hand")
         p2score += countHand(player2cards)
+
+        if dealer:
+            p1score += countHand(crib,isCrib=True)
 
 
         print("────────────────────── HANDS ─────")
