@@ -54,9 +54,10 @@ class PlayingCard:
         output = self.name.name.capitalize() + " " + self.suit.name.capitalize()
         return output
 
-# #
+# ##
 # # Deck functions
-# #
+# ##
+
 
 def createDeck():
 
@@ -125,9 +126,10 @@ def deal():
             player1cards.append(playDeck.pop())
             player2cards.append(playDeck.pop())
 
-# #
+# ##
 # # Player decision function
-# #
+# ##
+
 
 def p1discard():
 
@@ -216,9 +218,10 @@ def testRuns(testCard):
 
     return hasRun
 
-# #
+# ##
 # # Player action functions
-# #
+# ##
+
 
 def p1play():
 
@@ -234,9 +237,11 @@ def p1play():
     thePlay.append(playCard)
 
     spc = 14 - len(playCard.textPlay())
-    print("P1:", playCard.textPlay(), " " * spc, "     Count:", addCount + playCount)
+    spc2 = 2 - len(str(playCount + addCount))
+    print("P1:", playCard.textPlay(), " " * spc, "     Count:", addCount + playCount," " * spc2 ,"  Prev Score:", p1score)
 
     return addCount
+
 
 def p2play():
 
@@ -252,23 +257,25 @@ def p2play():
     thePlay.append(playCard)
 
     spc = 14 - len(playCard.textPlay())
-    print("P2:", playCard.textPlay(), " " * spc, "     Count:", addCount + playCount)
+    spc2 = 2 - len(str(playCount + addCount))
+    print("P2:", playCard.textPlay(), " " * spc, "     Count:", addCount + playCount, " " * spc2,"  Prev Score:",p2score)
 
     return addCount
 
 
 def checkPlayForPoints():
-    count = playCount
-    play = thePlay
+
     score = 0
-    if playCount == 15:
-        score += 2
-        print("15 two")
-    elif playCount == 31:
-        score += 1
-        print("31 for two")
-    score += playPairs()
-    score += playRuns()
+    if len(thePlay) > 1:
+        if playCount == 15:
+            score += 2
+            print("         15 two")
+        elif playCount == 31:
+            score += 1
+            print("         31 for two")
+
+        score += playPairs()
+        score += playRuns()
 
     return score
 
@@ -291,13 +298,13 @@ def playPairs():
     if onePair == 1:
         if twoPair == 1 and len(pairsValueList) > 2:
             if thrPair == 1 and len(pairsValueList) > 3:
-                print(" Four of a kind")
+                print("         Four of a kind")
                 score = 12
             else:
-                print(" Three of a kind")
+                print("         Three of a kind")
                 score = 6
         else:
-            print(" Two of a kind")
+            print("         Two of a kind")
             score = 2
     else:
         pass
@@ -319,7 +326,7 @@ def playRuns():
             rangeList = list(range(min(sortedCards),max(sortedCards)+1))
 
             if sortedCards == rangeList:
-                print("Run of", i)
+                print("         Run of", i)
                 scoreList.append(i)
             else:
                 pass
@@ -329,13 +336,44 @@ def playRuns():
     score = max(scoreList)
     return score
 
+# ##
+# # Count functions
+# ##
+
+
+def countHand(hand):
+    score = 0
+
+    flush = fourCardFlush(hand)
+    if flush != 0:
+        if hand[0].suit == cut.suit:
+            flush += 1
+    score += flush
+
+    return score
+
+
+def fourCardFlush(hand):
+
+    flushTest = []
+    for c in hand:
+        flushTest.append(c.suit)
+    test = len(set(flushTest))
+    if test == 1:
+        return 4
+    else:
+        return 0
+
+
+
+
 # # Test functions
 AVG_TEST = []
 START = time.time()
 
-# #
+# ##
 # # Game starts
-# #
+# ##
 
 
 for i in range(0, 100):
@@ -381,6 +419,21 @@ for i in range(0, 100):
         else:
             print("                   PLAYER 2 STARTS")
 
+        # ##
+        # # Play Phase loop begins
+        # ##
+
+        cut = cutDeck(playDeck)
+        print("Cut is a", cut.textPlay())
+
+        if cut.numb == 11:
+            if dealer:
+                p1score += 1
+                print("Player 1 gets Nibs")
+            else:
+                p2score += 1
+                print("Player 2 gets Nibs")
+
         outOfCards = False
         while not outOfCards:
             if len(p1playhand) == 0 and len(p2playhand) == 0:
@@ -396,11 +449,10 @@ for i in range(0, 100):
                         go = True
                         if p1turn:
                             p2score += 1
-                            print("GO!! Player 2 Scores ")
+                            print("         GO!! Player 2 Scores ")
                         else:
                             p1score += 1
-                            print("GO!! Player 1 Scores ")
-                        print()
+                            print("         GO!! Player 1 Scores ")
                         thePlay = []
 
                     elif p1turn and canGo(p1playhand):
@@ -422,16 +474,29 @@ for i in range(0, 100):
 
         print("Player 1 Score -", p1score)
         print("Player 2 score -", p2score)
+
+        # ##
+        # # Count begins
+        # ##
+
+        p1score += countHand(player1cards)
+        p2score += countHand(player2cards)
+
+
         print("────────────────────── HANDS ─────")
 
         print("Player 1")
         for cards in player1cards: print(cards.textPlay())
         print()
-        print("Player 2")
-        for cards in player2cards: print(cards.textPlay())
-        print()
-        print("Crib")
-        for cards in crib: print(cards.textPlay())
+        # print("Player 2")
+        # for cards in player2cards: print(cards.textPlay())
+        # print()
+        # print("Crib")
+        # for cards in crib: print(cards.textPlay())
+
+        # #
+        # # End round and start loop over
+        # #
 
         if dealer:
             dealer = False
@@ -449,9 +514,14 @@ for i in range(0, 100):
             roundCounter = 0
             p1score = 0
             p2score = 0
+
         else:
             roundPhaseOver = False
             roundCounter += 1
+
+
+
+
 
 
 # # Test Functions
