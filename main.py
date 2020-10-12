@@ -51,7 +51,7 @@ class PlayingCard:
 
     def textPlay(self):
 
-        output = self.name.name.capitalize() + " " + self.suit.name.capitalize() + " " + str(self.numb)
+        output = self.name.name.capitalize() + " " + self.suit.name.capitalize()
         return output
 
 # ##
@@ -133,6 +133,7 @@ def deal():
 
 def p1discard():
 
+    suggestedDiscard(player1cards)
     for i in range(0, 2):
         randCard = randint(0, len(player1cards) - 1)
         crib.append(player1cards.pop(randCard))
@@ -217,6 +218,82 @@ def testRuns(testCard):
         pass
 
     return hasRun
+
+
+def suggestedDiscard(hand):
+    possibleHands = []
+
+    for i in range(0, 6):
+        tempHand = hand.copy()
+        tempHand.pop(i)
+        for j in range(0, 5):
+            tempHand2 = tempHand.copy()
+            tempHand2.pop(j)
+            if j >= i:
+                possibleHands.append(tempHand2)
+
+    for pos in possibleHands:
+        presortedPos = []
+        for c in pos:
+            presortedPos.append(c.numb)
+
+        sortedPos = sorted(presortedPos)
+
+        score = 0
+        score += countFourCardFlush(pos)
+        score += countPairs(pos)
+
+        # # 4 Card run test
+        fourCardFound = False
+        rangeList = list(range(min(sortedPos), max(sortedPos)+1))
+        if sortedPos == rangeList:
+            score += 4
+            fourCardFound = True
+
+        # # 3 Card run test
+        if not fourCardFound:
+            for k in range(0, 4):
+                tempHand = sortedPos.copy()
+                tempHand.pop(k)
+                rangeList = list(range(min(tempHand), max(tempHand) + 1))
+                if tempHand == rangeList:
+                    score += 3
+
+        # # 15's test
+        convertHand = pos.copy()
+        fifteensHand = []
+        for c in convertHand:
+            fifteensHand.append(c.value)
+
+        # # 4 Card 15
+        if sum(fifteensHand) == 15:
+            score += 2
+
+        # # 3 Card 15
+        for index, c in enumerate(fifteensHand):
+            tempHand = fifteensHand.copy()
+            tempHand.pop(index)
+            if sum(tempHand) == 15:
+                score += 2
+
+        # # 2 Card 15
+        for l in range(0, 4):
+            tempHand = fifteensHand.copy()
+            tempHand.pop(l)
+            for m in range(0,3):
+                tempHand2 = tempHand.copy()
+                tempHand2.pop(m)
+                if m >= l:
+                    if sum(tempHand2) == 15:
+                        score += 2
+
+        print(score, "  ", end="")
+        for k in pos:
+            print(k.textPlay(), end=" ")
+        print()
+
+
+
 
 # ##
 # # Player action functions
@@ -405,8 +482,7 @@ def countHand(inHand, isCrib=False):
 
     fifteens = countFifteens(hand)
     if fifteens > 0:
-        howMany = int(fifteens / 2)
-        print(howMany, "x FIFTEEN", sep="")
+        print("FIFTEEN", fifteens)
     score += fifteens
 
     for c in inHand:
@@ -476,12 +552,13 @@ def countPairs(hand):
 
     score = 0
     tempHand = hand.copy()
-    for i in range(0, 5):
+    length = len(tempHand)
+    for i in range(0, length):
         card1 = tempHand.pop(0)
         for j in range(0, len(tempHand)):
             tempHand2 = tempHand.copy()
             card2 = tempHand2.pop(j)
-            # print(i,card1.numb, card2.numb)
+
             if card1.numb == card2.numb:
                 score += 2
 
@@ -655,10 +732,11 @@ for i in range(0, 100):
         p1score += countHand(player1cards)
         print("─── Player 2 Hand")
         p2score += countHand(player2cards)
-
+        print("─── Crib Hand")
         if dealer:
-            p1score += countHand(crib,isCrib=True)
-
+            p1score += countHand(crib, isCrib=True)
+        else:
+            p2score += countHand(crib, isCrib=True)
 
         print("────────────────────── HANDS ─────")
 
